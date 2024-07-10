@@ -8,7 +8,7 @@ from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 
 
-genai.configure(api_key="AIzaSyAWqrOxVrGl_lEFzQunjTP5uWgC2esIvWY")
+genai.configure(api_key="")
 pygame.mixer.init()
 generation_config = {
 
