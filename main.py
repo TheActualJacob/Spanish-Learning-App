@@ -7,8 +7,7 @@ from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPush
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import Qt
 
-
-genai.configure(api_key="")
+genai.configure(api_key=os.environ.get('googleapikey'))
 pygame.mixer.init()
 generation_config = {
 
