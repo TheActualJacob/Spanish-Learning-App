@@ -3,9 +3,12 @@ from gtts import gTTS
 import io
 import pygame
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel
-from PyQt6.QtGui import QFont
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QGridLayout, QHBoxLayout
+from PyQt6.QtGui import QFont, QMovie, QImage, QPixmap, QIcon
+from PyQt6.QtCore import Qt, QSize
+import os
+import random
+
 
 genai.configure(api_key=os.environ.get('googleapikey'))
 pygame.mixer.init()
@@ -22,8 +25,8 @@ def play_sound(audio_bytes):
 
 model = genai.GenerativeModel('gemini-1.5-flash', generation_config=generation_config)
 
-
-response=model.generate_content('Generate me a common but random spanish words sentance in mexican spanish that would be used in every day life a lot. Only give one spanish sentance and no english translation or anything else, just the sentance, I want it to be 7-15 words.')
+randomlevel = random.randint(1,10000)
+response=model.generate_content(f'Generate me a common but random spanish words sentance in mexican spanish that would be used in every day life a lot. Only give one spanish sentance and no english translation or anything else, just the sentance, I want it to be 7-15 words. Give me the {randomlevel}th response that you thought of.')
 
 
 spanish = response.text
@@ -52,18 +55,36 @@ class TTSApp(QWidget):
         super().__init__()
 
         # Set window properties
-        self.setWindowTitle('Text to Speech')
-        self.setGeometry(100, 100, 400, 200)
+        self.setWindowTitle('Language Master')
+        self.setGeometry(100,100,338,732)
 
          # Create layout and widgets
         self.layout = QVBoxLayout()
+        self.layout1 = QHBoxLayout()
+       
         
-        self.label = QLabel('Transelate what you think you heard')
-        self.label.setFont(QFont('Arial', 14))
+
+        self.label = QLabel(self)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTrailing)
+    
         
-        self.text_input = QLineEdit()
+
+        self.text_input = QLineEdit(self)
         self.text_input.setFont(QFont('Arial', 14))
         self.text_input.setPlaceholderText('Type your text here...')
+        
+        
+       
+    
+      
+        self.gif_button = QPushButton(self)
+        self.gif_button.setGeometry(85, 600, 200, 100)
+        self.gif_button.setIcon(QIcon('slower.png'))
+        self.gif_button.setIconSize(QSize(200, 100))
+        self.gif_button.setFlat(True)
+    
+        
+   
         
         self.button = QPushButton('Submit')
         self.button.setFont(QFont('Arial', 14))
@@ -72,15 +93,31 @@ class TTSApp(QWidget):
          # Add widgets to layout
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.text_input)
+ 
         self.layout.addWidget(self.button)
+        
+        pixmap = QPixmap("letters.png") 
+        
+        self.gif_button.raise_()
+
+        pixmap = pixmap.scaled(350, 750, Qt.AspectRatioMode.KeepAspectRatio)
+        self.label.setPixmap(pixmap)
+        self.label.setScaledContents(False)  
+        
         
         # Set layout for the main window
         self.setLayout(self.layout)
         
         # Apply some basic styling
         self.setStyleSheet("""
+                           
+             QMainWindow {
+                background-color: #282e2a;
+            }
+
+                           
             QWidget {
-                background-color: #f0f0f0;
+                background-color: #282e2a;
             }
             QLabel {
                 color: #333;
@@ -100,6 +137,7 @@ class TTSApp(QWidget):
             QPushButton:hover {
                 background-color: #0056b3;
             }
+            
         """)
 
 
@@ -107,7 +145,7 @@ class TTSApp(QWidget):
         text = self.text_input.text()
         if text:
             
-            rating = model.generate_content(f'tell me how close on a scale of one to ten is {text} for the spanish sentance {spanish}. I dont want anything else except for a number between 1 and ten that is the rating you give.')
+            rating = model.generate_content(f'tell me how close from 1% to 100% is {text} for the spanish sentance {spanish}. Rate it based on vocabulary words transelated correctly, grammar, and context. If everything is correct, give 100%. I only want the percent rating and a one sentance explanation of what was translated wrong.')
             translation = model.generate_content(f'what is your english translation of {spanish}. I just want the direct english translation as a sentance and nothing else.')
             print(rating.text)
             print(translation.text)
